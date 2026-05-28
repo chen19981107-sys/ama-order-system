@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ㄚ嬤灶咖｜線上點餐</title>
+  <!-- LINE LIFF SDK -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.0/sdk.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --orange: #E8711A;
+      --orange-dark: #c45c10;
+      --orange-light: #fff4ec;
+      --orange-border: #f5c89a;
+      --red: #c0392b;
+      --bg: #f5f5f5;
+      --surface: #ffffff;
+      --border: #e0e0e0;
+      --text: #1a1a1a;
+      --text-sub: #666666;
+      --text-hint: #999999;
+      --success: #27ae60;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(160deg, #f0820a 0%, #E8711A 60%, #d4600f 100%);
+      padding: 32px 20px 28px;
+      text-align: center;
+      color: white;
+      position: relative;
+    }
+    .header-emoji { font-size: 44px; display: block; margin-bottom: 8px; }
+    .header h1 { font-size: 24px; font-weight: 900; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .header p { font-size: 13px; opacity: 0.88; line-height: 1.5; }
+    
+    .admin-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .admin-btn:active { background: rgba(255,255,255,0.3); }
+
+    /* ── Section ── */
+    .section {
+      background: var(--surface);
+      margin: 12px 12px 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-sub);
+      padding: 14px 16px 0;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .section-title .req { color: var(--orange); margin-left: 4px; }
+
+    /* ── Location Display ── */
+    .location-section {
+      background: linear-gradient(135deg, #fff4ec 0%, #fffbf7 100%);
+      border-left: 4px solid var(--orange);
+      margin: 16px 12px 12px 12px;
+      padding: 16px;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .location-label {
+      font-size: 12px;
+      color: var(--text-sub);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+    .location-text {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--orange);
+    }
+
+    /* ── Field ── */
+    .field { padding: 12px 16px; }
+    .field-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .field-label .req { color: var(--orange); margin-left: 4px; }
+    .req-dot {
+      width: 6px; height: 6px;
+      background: var(--orange);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .field input[type="text"],
+    .field input[type="datetime-local"],
+    .field textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: inherit;
+      color: var(--text);
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      -webkit-appearance: none;
+    }
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--orange);
+      background: white;
+    }
+    .field input.err,
+    .field textarea.err {
+      border-color: var(--red);
+      background: #fff5f5;
+    }
+    .field-hint {
+      font-size: 12px;
+      color: var(--text-hint);
+      margin-top: 6px;
+    }
+    .field-err-msg {
+      font-size: 12px;
+      color: var(--red);
+      margin-top: 6px;
+      display: none;
+    }
+    .field-err-msg.show { display: block; }
+
+    /* ── Menu ── */
+    .menu-list { padding: 0; }
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item.selected { background: #fff4ec; }
+    .menu-info { flex: 1; }
+    .menu-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .menu-price { font-size: 13px; color: var(--orange); font-weight: 700; }
+    .qty-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 4px;
+    }
+    .qty-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: white;
+      color: var(--orange);
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .qty-btn:active { background: #f0f0f0; }
+    .qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .qty-num {
+      width: 32px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--text-hint);
+      font-size: 14px;
+    }
+    .qty-num.active { color: var(--orange); }
+    .menu-err {
+      font-size: 12px;
+      color: var(--red);
+      padding: 12px 16px;
+      display: none;
+    }
+    .menu-err.show { display: block; }
+
+    /* ── Summary ── */
+    .summary-box {
+      background: var(--surface);
+      margin: 12px 12px 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      display: none;
+    }
+    .summary-box.show { display: block; }
+    .summary-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      padding: 14px 16px 12px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: var(--text);
+      padding: 8px 16px;
+    }
+    .summary-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 8px 0;
+    }
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--orange);
+      padding: 12px 16px;
+    }
+
+    /* ── Submit ── */
+    .submit-wrap {
+      padding: 20px 12px 12px;
+      text-align: center;
+    }
+    .submit-btn {
+      width: 100%;
+      max-width: 400px;
+      background: linear-gradient(160deg, #f0820a 0%, #E8711A 60%, #d4600f 100%);
+      color: white;
+      border: none;
+      padding: 16px 28px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 900;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(232, 113, 26, 0.3);
+    }
+    .submit-btn:active { transform: scale(0.98); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .submit-note {
+      font-size: 12px;
+      color: var(--text-hint);
+      margin-top: 12px;
+    }
+
+    /* ── Success ── */
+    .success-wrap {
+      display: none;
+      padding: 20px 12px;
+    }
+    .success-wrap.show { display: block; }
+    .success-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .success-icon { font-size: 64px; margin-bottom: 16px; }
+    .success-title { font-size: 22px; font-weight: 900; color: var(--success); margin-bottom: 8px; }
+    .success-sub { font-size: 14px; color: var(--text-sub); line-height: 1.7; margin-bottom: 20px; }
+    .success-detail {
+      background: #f0faf5;
+      border: 1.5px solid #a9dfbf;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+    .detail-row { font-size: 14px; color: var(--text); line-height: 2; }
+    .detail-label { font-weight: 700; color: var(--success); }
+    .new-order-btn {
+      background: white;
+      border: 2px solid var(--orange);
+      color: var(--orange);
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    /* ── Admin Panel ── */
+    .admin-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .admin-modal.show { display: flex; }
+    .admin-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .admin-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .admin-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-hint);
+    }
+    .admin-field {
+      margin-bottom: 16px;
+    }
+    .admin-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-sub);
+    }
+    .admin-input {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+    .admin-input:focus {
+      outline: none;
+      border-color: var(--orange);
+      background: white;
+    }
+    .admin-err {
+      color: var(--red);
+      font-size: 12px;
+      margin-top: 6px;
+      display: none;
+    }
+    .admin-err.show { display: block; }
+    .admin-btn-verify {
+      width: 100%;
+      background: var(--orange);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+    .admin-content {
+      display: none;
+    }
+    .admin-content.show { display: block; }
+    .admin-btn-save {
+      width: 100%;
+      background: var(--orange);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+    .admin-status {
+      padding: 12px;
+      background: #f0faf5;
+      border: 1.5px solid #a9dfbf;
+      border-radius: 10px;
+      color: var(--success);
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+    .admin-status.show { display: block; }
+    .location-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .location-item-text { flex: 1; }
+    .location-item-delete {
+      background: var(--red);
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .location-item-delete:active { opacity: 0.8; }
+
+    /* ── Loading ── */
+    .loading-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .loading-mask.show { display: flex; }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    .loading-text { color: white; font-size: 15px; font-weight: 700; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+<script>
+// ── LIFF 初始化 ──────────────────────────────────────────────────────────────
+async function initLIFF() {
+  try {
+    await liff.init({ liffId: '2010099034-5ftoEixn' });
+    if (!liff.isLoggedIn()) {
+      liff.login();
+    }
+  } catch (error) {
+    console.error('LIFF 初始化失敗:', error);
+  }
+}
+
+// 立即初始化時間選擇器
+function initTimeSelectors() {
+  const hourSelect = document.getElementById("pickupHour");
+  if (hourSelect && hourSelect.children.length === 1) {
+    for (let h = 0; h < 24; h++) {
+      const opt = document.createElement("option");
+      opt.value = String(h).padStart(2, "0");
+      opt.textContent = String(h).padStart(2, "0") + " 時";
+      hourSelect.appendChild(opt);
+    }
+  }
+  
+  const minuteSelect = document.getElementById("pickupMinute");
+  if (minuteSelect && minuteSelect.children.length === 1) {
+    [0, 15, 30, 45].forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = String(m).padStart(2, "0");
+      opt.textContent = String(m).padStart(2, "0") + " 分";
+      minuteSelect.appendChild(opt);
+    });
+  }
+}
+
+// 在 DOM 準備好後立即初始化
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initTimeSelectors);
+} else {
+  initTimeSelectors();
+}
+</script>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <span class="header-emoji">🍱</span>
+  <h1>ㄚ嬤灶咖｜線上點餐</h1>
+  <p>每一道餐點，都是ㄚ嬤灶咖用心準備的熟悉滋味。</p>
+</div>
+
+<!-- Admin Panel -->
+<div class="admin-modal" id="adminModal">
+  <div class="admin-card">
+    <div class="admin-header">
+      <h2>店家設定</h2>
+      <button class="admin-close" id="adminCloseBtn">✕</button>
+    </div>
+    
+    <div class="admin-field">
+      <label class="admin-label">密碼驗證</label>
+      <input type="password" id="adminPassword" class="admin-input" placeholder="輸入店家密碼" />
+      <div class="admin-err" id="adminErr">密碼錯誤</div>
+    </div>
+    
+    <button class="admin-btn-verify" id="verifyBtn">驗證</button>
+    
+    <div class="admin-content" id="adminContent">
+      <div class="admin-field">
+        <label class="admin-label">設定日期的出車地點</label>
+        <input type="date" id="adminDateInput" class="admin-input" />
+      </div>
+      
+      <div class="admin-field">
+        <label class="admin-label">出車地點</label>
+        <input type="text" id="locationInput" class="admin-input" placeholder="例：東門店、西門店、總店" />
+      </div>
+      
+      <button class="admin-btn-save" id="saveLocationBtn">保存地點</button>
+      <div class="admin-status" id="locationStatus">✓ 地點已保存</div>
+      
+      <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border);" />
+      
+      <div class="admin-field">
+        <label class="admin-label">已設定的日期位置</label>
+        <div id="locationsList" style="max-height: 200px; overflow-y: auto;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form id="form" novalidate>
+
+  <!-- 出車地點顯示 -->
+  <div class="location-section">
+    <div class="location-label">📍 出車地點</div>
+    <div class="location-text" id="currentLocation">載入中...</div>
+  </div>
+
+  <!-- 顧客資訊 -->
+  <div class="section" style="margin-top:12px;">
+    <div class="section-title">顧客資訊</div>
+    
+    <!-- 日期和時間同一行 -->
+    <div style="display: flex; gap: 12px; padding: 12px 16px;">
+      <div style="flex: 1;">
+        <div class="field-label"><span class="req-dot"></span>取餐日期</div>
+        <input type="date" id="pickupDate" style="width: 100%;" />
+        <div class="field-err-msg" id="dateErr">請選擇取餐日期</div>
+      </div>
+      <div style="flex: 1;">
+        <div class="field-label"><span class="req-dot"></span>取餐時間</div>
+        <div style="display: flex; gap: 8px;">
+          <select id="pickupHour" style="flex: 1; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 16px; font-family: inherit; background: #fafafa; outline: none;">
+            <option value="">-- 時 --</option>
+            <option value="00">00 時</option>
+            <option value="01">01 時</option>
+            <option value="02">02 時</option>
+            <option value="03">03 時</option>
+            <option value="04">04 時</option>
+            <option value="05">05 時</option>
+            <option value="06">06 時</option>
+            <option value="07">07 時</option>
+            <option value="08">08 時</option>
+            <option value="09">09 時</option>
+            <option value="10">10 時</option>
+            <option value="11">11 時</option>
+            <option value="12">12 時</option>
+            <option value="13">13 時</option>
+            <option value="14">14 時</option>
+            <option value="15">15 時</option>
+            <option value="16">16 時</option>
+            <option value="17">17 時</option>
+            <option value="18">18 時</option>
+            <option value="19">19 時</option>
+            <option value="20">20 時</option>
+            <option value="21">21 時</option>
+            <option value="22">22 時</option>
+            <option value="23">23 時</option>
+          </select>
+          <select id="pickupMinute" style="flex: 1; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 16px; font-family: inherit; background: #fafafa; outline: none;">
+            <option value="">-- 分 --</option>
+            <option value="00">00 分</option>
+            <option value="15">15 分</option>
+            <option value="30">30 分</option>
+            <option value="45">45 分</option>
+          </select>
+        </div>
+        <small style="color: #999; font-size: 12px; margin-top: 6px; display: block;">24小時制（00:00 ~ 23:59）</small>
+        <div class="field-err-msg" id="timeErr">請選擇取餐時間</div>
+      </div>
+    </div>
+    
+    <div class="field">
+      <div class="field-label">您的姓氏 <span class="req">*必填</span></div>
+      <input type="text" id="name" placeholder="例：王先生、小美小姓" maxlength="20" />
+      <div class="field-err-msg" id="nameErr">請填寫您的姓氏</div>
+    </div>
+    <div class="field">
+      <div class="field-label">手機號碼 <span class="req">*必填</span></div>
+      <input type="text" id="phone" placeholder="09xxxxxxxxx" maxlength="10" />
+      <div class="field-err-msg" id="phoneErr">請填寫正確的手機號碼</div>
+    </div>
+  </div>
+
+  <!-- 餐點選擇 -->
+  <div class="section" style="margin-top:12px;">
+    <div class="section-title">餐點選擇 <span class="req">*必填</span></div>
+    <div class="menu-list" id="menuList"></div>
+    <div class="menu-err" id="menuErr">請至少選擇一項餐點</div>
+  </div>
+
+  <!-- 已選摘要 -->
+  <div class="summary-box" id="summaryBox" style="margin-top:12px;">
+    <div class="summary-title">📋 已選餐點</div>
+    <div id="summaryItems"></div>
+    <hr class="summary-divider" />
+    <div class="summary-total"><span>合計</span><span id="summaryTotal">$0</span></div>
+  </div>
+
+  <!-- 備註 -->
+  <div class="section" style="margin-top:12px;">
+    <div class="field">
+      <div class="field-label" style="font-weight:600; color: var(--text-sub);">備註（選填）</div>
+      <textarea id="note" placeholder="例：不要蔥、醬汁多一點" rows="3"></textarea>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-wrap">
+    <button type="submit" class="submit-btn" id="submitBtn">確認下單</button>
+    <p class="submit-note">送出後將無法修改，請確認內容後再送出</p>
+  </div>
+
+</form>
+
+<!-- Success -->
+<div class="success-wrap" id="successWrap">
+  <div class="success-card">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">訂單送出成功！</div>
+    <div class="success-sub">感謝您的訂購，我們會盡快為您準備餐點。<br/>請於指定時間前來取餐。</div>
+    <div class="success-detail" id="successDetail"></div>
+    <button class="new-order-btn" onclick="resetForm()">再次訂購</button>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-mask" id="loadingMask">
+  <div class="spinner"></div>
+  <div class="loading-text">訂單送出中…</div>
+</div>
+
+<script>
+const MENU = [
+  { id: 1, name: "泰式拌飯",   price: 140 },
+  { id: 2, name: "咖哩雞飯",   price: 140 },
+  { id: 3, name: "燒肉丼飯",   price: 100 },
+  { id: 4, name: "親子丼飯",   price: 100 },
+  { id: 5, name: "牛肉丼飯",   price: 110 },
+  { id: 6, name: "鯛魚丼飯",   price: 110 },
+  { id: 7, name: "虱目魚丼飯", price: 110 },
+  { id: 8, name: "豬多多",     price: 140 },
+  { id: 9, name: "牛多多",     price: 160 },
+];
+
+const ADMIN_PASSWORD = "1234"; // 店家密碼
+const API_BASE = window.location.origin;
+const qty = {};
+MENU.forEach(m => qty[m.id] = 0);
+
+let currentLocation = "未設定";
+let currentPickupDate = "";
+let adminAuthenticated = false;
+
+// ── 設定日期選擇器的最小值 ──────────────────────────────────────────────────────
+function setDatePickerConstraints() {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const p = n => String(n).padStart(2, "0");
+  const minDate = `${tomorrow.getFullYear()}-${p(tomorrow.getMonth()+1)}-${p(tomorrow.getDate())}`;
+  const todayStr = `${today.getFullYear()}-${p(today.getMonth()+1)}-${p(today.getDate())}`;
+  document.getElementById("pickupDate").min = minDate;
+  document.getElementById("pickupDate").value = todayStr; // 預設為當前日期
+  currentPickupDate = todayStr;
+}
+
+// ── 載入指定日期的出車地點 ──────────────────────────────────────────────────────
+async function loadLocationForDate(date) {
+  try {
+    const res = await fetch(`${API_BASE}/api/location?date=${date}`);
+    const data = await res.json();
+    currentLocation = data.location || "未設定";
+    
+    // 格式化日期顯示 (M/D 格式)
+    const [year, month, day] = date.split("-");
+    const displayDateStr = `${parseInt(month)}/${parseInt(day)}`;
+    const displayText = `${displayDateStr} ${currentLocation}`;
+    
+    document.getElementById("currentLocation").textContent = displayText;
+  } catch (err) {
+    console.error("載入地點失敗:", err);
+    document.getElementById("currentLocation").textContent = "未設定";
+  }
+}
+
+// ── 日期選擇器變化事件 ──────────────────────────────────────────────────────────
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+
+    document.getElementById("pickupDate").addEventListener("change", (e) => {
+      currentPickupDate = e.target.value;
+      loadLocationForDate(currentPickupDate);
+    });
+  });
+} else {
+
+  document.getElementById("pickupDate").addEventListener("change", (e) => {
+    currentPickupDate = e.target.value;
+    loadLocationForDate(currentPickupDate);
+  });
+}
+
+// ── 店家設定面板 ──────────────────────────────────────────────────────────────
+
+document.getElementById("verifyBtn").addEventListener("click", async () => {
+  const pwd = document.getElementById("adminPassword").value;
+  if (pwd === ADMIN_PASSWORD) {
+    document.getElementById("adminErr").classList.remove("show");
+    document.getElementById("adminContent").classList.add("show");
+    document.getElementById("verifyBtn").style.display = "none";
+    document.getElementById("adminPassword").disabled = true;
+    adminAuthenticated = true;
+    
+    // 設定日期選擇器的最小值（明天）
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const p = n => String(n).padStart(2, "0");
+    const minDate = `${tomorrow.getFullYear()}-${p(tomorrow.getMonth()+1)}-${p(tomorrow.getDate())}`;
+    document.getElementById("adminDateInput").min = minDate;
+    document.getElementById("adminDateInput").value = minDate;
+    
+    // 載入已設定的位置列表
+    await loadLocationsList();
+  } else {
+    document.getElementById("adminErr").classList.add("show");
+  }
+});
+
+// ── 載入已設定的位置列表 ──────────────────────────────────────────────────────
+async function loadLocationsList() {
+  try {
+    const res = await fetch(`${API_BASE}/api/locations`);
+    const data = await res.json();
+    const locations = data.locations || {};
+    const listEl = document.getElementById("locationsList");
+    
+    if (Object.keys(locations).length === 0) {
+      listEl.innerHTML = "<p style='color: var(--text-hint); font-size: 12px;'>尚未設定任何日期位置</p>";
+      return;
+    }
+    
+    listEl.innerHTML = Object.entries(locations)
+      .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+      .map(([date, location]) => `
+        <div class="location-item">
+          <div class="location-item-text">
+            <strong>${date}</strong><br/>
+            <span style="color: var(--orange);">${location}</span>
+          </div>
+          <button type="button" class="location-item-delete" onclick="deleteLocation('${date}')">刪除</button>
+        </div>
+      `).join("");
+  } catch (err) {
+    console.error("載入位置列表失敗:", err);
+  }
+}
+
+// ── 刪除指定日期的位置 ──────────────────────────────────────────────────────────
+async function deleteLocation(date) {
+  if (!confirm(`確定要刪除 ${date} 的位置設定嗎？`)) return;
+  
+  try {
+    const res = await fetch(`${API_BASE}/api/location`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date })
+    });
+    const data = await res.json();
+    if (data.success) {
+      await loadLocationsList();
+    } else {
+      alert("刪除失敗：" + (data.error || "未知錯誤"));
+    }
+  } catch (err) {
+    alert("刪除失敗，請稍後再試");
+  }
+}
+
+// ── 保存指定日期的位置 ──────────────────────────────────────────────────────────
+document.getElementById("saveLocationBtn").addEventListener("click", async () => {
+  const date = document.getElementById("adminDateInput").value.trim();
+  const location = document.getElementById("locationInput").value.trim();
+  
+  if (!date) {
+    alert("請選擇日期");
+    return;
+  }
+  
+  if (!location) {
+    alert("請輸入出車地點");
+    return;
+  }
+  
+  try {
+    const res = await fetch(`${API_BASE}/api/location`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date, location })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById("locationStatus").classList.add("show");
+      document.getElementById("locationInput").value = "";
+      await loadLocationsList();
+      setTimeout(() => {
+        document.getElementById("locationStatus").classList.remove("show");
+      }, 2000);
+    } else {
+      alert("保存失敗：" + (data.error || "未知錯誤"));
+    }
+  } catch (err) {
+    alert("保存失敗，請稍後再試");
+  }
+});
+
+// ── 渲染菜單 ──────────────────────────────────────────────────────────────────
+function renderMenu() {
+  document.getElementById("menuList").innerHTML = MENU.map(m => `
+    <div class="menu-item" id="row-${m.id}">
+      <div class="menu-info">
+        <div class="menu-name">${m.name}</div>
+        <div class="menu-price">$${m.price}</div>
+      </div>
+      <div class="qty-wrap">
+        <button type="button" class="qty-btn" id="minus-${m.id}" onclick="chg(${m.id},-1)" disabled>−</button>
+        <div class="qty-num" id="num-${m.id}">0</div>
+        <button type="button" class="qty-btn" onclick="chg(${m.id},1)">＋</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function chg(id, d) {
+  qty[id] = Math.max(0, Math.min(99, qty[id] + d));
+  document.getElementById(`num-${id}`).textContent = qty[id];
+  document.getElementById(`num-${id}`).className = "qty-num" + (qty[id] > 0 ? " active" : "");
+  document.getElementById(`minus-${id}`).disabled = qty[id] === 0;
+  document.getElementById(`row-${id}`).className = "menu-item" + (qty[id] > 0 ? " selected" : "");
+  updateSummary();
+  if (qty[id] > 0) document.getElementById("menuErr").classList.remove("show");
+}
+
+function getSelected() {
+  return MENU.filter(m => qty[m.id] > 0).map(m => ({ id: m.id, name: m.name, price: m.price, qty: qty[m.id] }));
+}
+
+function updateSummary() {
+  const sel = getSelected();
+  const box = document.getElementById("summaryBox");
+  if (!sel.length) { box.classList.remove("show"); return; }
+  box.classList.add("show");
+  let total = 0;
+  document.getElementById("summaryItems").innerHTML = sel.map(i => {
+    const sub = i.price * i.qty;
+    total += sub;
+    return `<div class="summary-row"><span>${i.name} × ${i.qty}</span><span>$${sub}</span></div>`;
+  }).join("");
+  document.getElementById("summaryTotal").textContent = `$${total}`;
+}
+
+
+
+function setDefaultTime() {
+  // 取餐時間預設為空白，由用戶自行選擇
+  document.getElementById("pickupHour").value = "";
+  document.getElementById("pickupMinute").value = "";
+}
+
+// ── 手機末三碼只允許數字 ──────────────────────────────────────────────────────
+document.getElementById("phone").addEventListener("input", function() {
+  this.value = this.value.replace(/\D/g, "").slice(0, 10);
+});
+
+// ── 驗證 ──────────────────────────────────────────────────────────────────────
+function validate() {
+  let ok = true;
+  const setErr = (id, errId, cond) => {
+    const el = document.getElementById(id);
+    const em = document.getElementById(errId);
+    if (cond) { el.classList.add("err"); em.classList.add("show"); ok = false; }
+    else { el.classList.remove("err"); em.classList.remove("show"); }
+  };
+  setErr("pickupDate", "dateErr", !document.getElementById("pickupDate").value);
+  setErr("name", "nameErr", !document.getElementById("name").value.trim());
+  setErr("phone", "phoneErr", !/^\d{10}$/.test(document.getElementById("phone").value.trim()));
+  const hour = document.getElementById("pickupHour").value;
+  const minute = document.getElementById("pickupMinute").value;
+  setErr("pickupTime", "timeErr", !hour || !minute);
+  const noMenu = getSelected().length === 0;
+  if (noMenu) document.getElementById("menuErr").classList.add("show");
+  else document.getElementById("menuErr").classList.remove("show");
+  if (noMenu) ok = false;
+  return ok;
+}
+
+// ── 送出 ──────────────────────────────────────────────────────────────────────
+document.getElementById("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!validate()) {
+    const first = document.querySelector(".err, .menu-err.show");
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+  const items = getSelected();
+  const pickupDate = document.getElementById("pickupDate").value;
+  const hour = document.getElementById("pickupHour").value;
+  const minute = document.getElementById("pickupMinute").value;
+  const pickupTime = hour && minute ? `${hour}:${minute}` : "";
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const note = document.getElementById("note").value.trim();
+
+  document.getElementById("loadingMask").classList.add("show");
+  document.getElementById("submitBtn").disabled = true;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name,
+        phone: phone,
+        date: pickupDate,
+        time: pickupTime,
+        items: items.map(i => ({ name: i.name, price: i.price, quantity: i.qty })),
+        totalPrice: items.reduce((sum, i) => sum + i.price * i.qty, 0),
+        note: note || undefined,
+        location: currentLocation || "未設定"
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || "訂單送出失敗");
+    showSuccess({ name, phone, pickupDate, pickupTime, items, note, orderId: data.orderId, location: currentLocation });
+  } catch (err) {
+    alert("❌ " + (err.message || "訂單送出失敗，請稍後再試"));
+    document.getElementById("submitBtn").disabled = false;
+  } finally {
+    document.getElementById("loadingMask").classList.remove("show");
+  }
+});
+
+// ── 成功畫面 ──────────────────────────────────────────────────────────────────
+function showSuccess({ name, phone, pickupDate, pickupTime, items, note, orderId, location }) {
+  document.getElementById("form").style.display = "none";
+  document.getElementById("summaryBox").style.display = "none";
+  document.getElementById("successWrap").classList.add("show");
+  const p = n => String(n).padStart(2, "0");
+  const [year, month, day] = pickupDate.split("-");
+  const dateStr = `${year}/${p(month)}/${p(day)}`;
+  const total = items.reduce((s, i) => s + i.price * i.qty, 0);
+  document.getElementById("successDetail").innerHTML = `
+    <div class="detail-row"><span class="detail-label">訂單編號：</span>#${orderId || "---"}</div>
+    <div class="detail-row"><span class="detail-label">姓名：</span>${name}</div>
+    <div class="detail-row"><span class="detail-label">手機末三碼：</span>${phone}</div>
+    <div class="detail-row"><span class="detail-label">取餐日期：</span>${dateStr}</div>
+    <div class="detail-row"><span class="detail-label">取餐時間：</span>${pickupTime}</div>
+    <div class="detail-row"><span class="detail-label">取餐地點：</span>${location}</div>
+    <div class="detail-row"><span class="detail-label">餐點：</span>${items.map(i => `${i.name}×${i.qty}`).join("、")}</div>
+    <div class="detail-row"><span class="detail-label">合計：</span>$${total}</div>
+    ${note ? `<div class="detail-row"><span class="detail-label">備註：</span>${note}</div>` : ""}
+  `;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function resetForm() {
+  MENU.forEach(m => qty[m.id] = 0);
+  document.getElementById("form").reset();
+  document.getElementById("form").style.display = "block";
+  document.getElementById("summaryBox").style.display = "";
+  document.getElementById("successWrap").classList.remove("show");
+  document.getElementById("submitBtn").disabled = false;
+  renderMenu();
+  updateSummary();
+  setDefaultTime();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ── 初始化 ────────────────────────────────────────────────────────────────────
+renderMenu();
+setDatePickerConstraints();
+setDefaultTime();
+loadLocationForDate(currentPickupDate);
+
+// 設定日期選擇器的變化事件（後初始化）
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+
+    document.getElementById("pickupDate").addEventListener("change", (e) => {
+      currentPickupDate = e.target.value;
+      loadLocationForDate(currentPickupDate);
+    });
+  });
+} else {
+
+  document.getElementById("pickupDate").addEventListener("change", (e) => {
+    currentPickupDate = e.target.value;
+    loadLocationForDate(currentPickupDate);
+  });
+}
+</script>
+</body>
+</html>

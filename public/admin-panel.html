@@ -357,7 +357,17 @@
         let currentPage = 1;
         const ordersPerPage = 10;
 
+        function checkLogin() {
+            const adminUser = localStorage.getItem('adminUser');
+            if (!adminUser) {
+                window.location.href = '/login';
+                return false;
+            }
+            return true;
+        }
+
         function initAdminPanel() {
+            if (!checkLogin()) return;
             loadOrders();
             updateStats();
         }

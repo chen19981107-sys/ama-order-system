@@ -318,7 +318,17 @@
         let currentDate = new Date(2026, 4, 29); // May 29, 2026
         let locations = [];
 
+        function checkLogin() {
+            const shopUser = localStorage.getItem('shopUser');
+            if (!shopUser) {
+                window.location.href = '/login';
+                return false;
+            }
+            return true;
+        }
+
         function initCalendar() {
+            if (!checkLogin()) return;
             renderCalendar();
             loadLocations();
         }

@@ -31,7 +31,22 @@ initializeDataFiles();
 // 中間件
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
+
+// 靜態文件服務（支持 Vercel）
+const publicDir = path.join(__dirname, "public");
+if (fs.existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+}
+
+// 提供 order-form.html 作為 /order 端點
+app.get("/order", (req, res) => {
+  const orderFormPath = path.join(__dirname, "public", "order-form.html");
+  if (fs.existsSync(orderFormPath)) {
+    res.sendFile(orderFormPath);
+  } else {
+    res.status(404).send("order-form.html not found");
+  }
+});
 
 // ===== 出車地點 API =====
 

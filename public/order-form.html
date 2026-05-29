@@ -487,9 +487,10 @@ async function initLIFF() {
 
 // ✅ 只在 LIFF 環境中調用初始化
 // 檢測是否在 LIFF 環境中
-const isInLIFF = window.location.href.includes('liff.line.me') || (typeof liff !== 'undefined' && liff);
+const isInLIFF = window.location.href.includes('liff.line.me');
 
 if (isInLIFF) {
+  console.log('🔍 檢測到 LIFF 環境，正在初始化...');
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initLIFF);
   } else {

@@ -485,11 +485,18 @@ async function initLIFF() {
   }
 }
 
-// ✅ 在頁面加載時立即調用 LIFF 初始化
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initLIFF);
+// ✅ 只在 LIFF 環境中調用初始化
+// 檢測是否在 LIFF 環境中
+const isInLIFF = window.location.href.includes('liff.line.me') || (typeof liff !== 'undefined' && liff);
+
+if (isInLIFF) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initLIFF);
+  } else {
+    initLIFF();
+  }
 } else {
-  initLIFF();
+  console.log('⚠️ 不在 LIFF 環境中，跳過 LIFF 初始化');
 }
 
 // 立即初始化時間選擇器

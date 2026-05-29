@@ -998,7 +998,13 @@ function validate() {
 }
 
 // ── 送出 ──────────────────────────────────────────────────────────────────────
-document.getElementById("form").addEventListener("submit", async e => {
+try {
+  const formElement = document.getElementById("form");
+  if (!formElement) {
+    console.error('❌ 表單元素不存在！');
+  } else {
+    console.log('✅ 表單元素已找到，正在綁定提交事件...');
+    formElement.addEventListener("submit", async e => {
   e.preventDefault();
   if (!validate()) {
     const first = document.querySelector(".err, .menu-err.show");
@@ -1041,7 +1047,11 @@ document.getElementById("form").addEventListener("submit", async e => {
   } finally {
     document.getElementById("loadingMask").classList.remove("show");
   }
-});
+    });
+  }
+} catch (err) {
+  console.error('❌ 表單事件監聽器綁定失敗:', err);
+}
 
 // ── 成功畫面 ──────────────────────────────────────────────────────────────────
 function showSuccess({ name, phone, pickupDate, pickupTime, items, note, orderId, location }) {

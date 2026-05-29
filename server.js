@@ -38,6 +38,25 @@ if (fs.existsSync(publicDir)) {
   app.use(express.static(publicDir));
 }
 
+// 提供 login.html 作為 / 和 /login 端點
+app.get("/", (req, res) => {
+  const loginPath = path.join(__dirname, "public", "login.html");
+  if (fs.existsSync(loginPath)) {
+    res.sendFile(loginPath);
+  } else {
+    res.status(404).send("login.html not found");
+  }
+});
+
+app.get("/login", (req, res) => {
+  const loginPath = path.join(__dirname, "public", "login.html");
+  if (fs.existsSync(loginPath)) {
+    res.sendFile(loginPath);
+  } else {
+    res.status(404).send("login.html not found");
+  }
+});
+
 // 提供 order-form.html 作為 /order 端點
 app.get("/order", (req, res) => {
   const orderFormPath = path.join(__dirname, "public", "order-form.html");

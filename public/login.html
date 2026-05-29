@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>輕鬆點餐系統 - 登入</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff6b35;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background-color: transparent;
+            color: #999;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #ff6b35;
+            border-bottom-color: #ff6b35;
+        }
+
+        .tab-btn:hover {
+            color: #ff6b35;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background-color: #e55a24;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .form-content {
+            display: none;
+        }
+
+        .form-content.active {
+            display: block;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .tabs {
+                margin-bottom: 20px;
+            }
+
+            .tab-btn {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🍜</div>
+            <div class="title">輕鬆點餐</div>
+            <div class="subtitle">餐飲訂單管理系統</div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('shop')">店家登入</button>
+            <button class="tab-btn" onclick="switchTab('admin')">管理員登入</button>
+        </div>
+
+        <!-- 店家登入表單 -->
+        <div id="shop-form" class="form-content active">
+            <form onsubmit="handleShopLogin(event)">
+                <div class="form-group">
+                    <label for="shop-username">帳號</label>
+                    <input type="text" id="shop-username" placeholder="輸入店家帳號" required>
+                    <div class="error-message" id="shop-username-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="shop-password">密碼</label>
+                    <input type="password" id="shop-password" placeholder="輸入密碼" required>
+                    <div class="error-message" id="shop-password-error"></div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="shop-remember" checked>
+                    <label for="shop-remember">記住密碼</label>
+                </div>
+
+                <button type="submit" class="login-btn">店家登入</button>
+                <div class="error-message" id="shop-error"></div>
+            </form>
+        </div>
+
+        <!-- 管理員登入表單 -->
+        <div id="admin-form" class="form-content">
+            <form onsubmit="handleAdminLogin(event)">
+                <div class="form-group">
+                    <label for="admin-username">帳號</label>
+                    <input type="text" id="admin-username" placeholder="輸入管理員帳號" required>
+                    <div class="error-message" id="admin-username-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-password">密碼</label>
+                    <input type="password" id="admin-password" placeholder="輸入密碼" required>
+                    <div class="error-message" id="admin-password-error"></div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="admin-remember" checked>
+                    <label for="admin-remember">記住密碼</label>
+                </div>
+
+                <button type="submit" class="login-btn">管理員登入</button>
+                <div class="error-message" id="admin-error"></div>
+            </form>
+        </div>
+
+        <div class="footer">
+            測試帳號：shop1 / admin | 密碼：1234 / admin
+        </div>
+    </div>
+
+    <script>
+        // 初始化
+        function init() {
+            // 檢查是否已登入
+            const shopUser = localStorage.getItem('shopUser');
+            const adminUser = localStorage.getItem('adminUser');
+
+            if (shopUser) {
+                window.location.href = '/admin';
+            } else if (adminUser) {
+                window.location.href = '/admin-panel';
+            }
+
+            // 恢復記住的帳號
+            const savedShopUsername = localStorage.getItem('savedShopUsername');
+            const savedAdminUsername = localStorage.getItem('savedAdminUsername');
+
+            if (savedShopUsername) {
+                document.getElementById('shop-username').value = savedShopUsername;
+                document.getElementById('shop-remember').checked = true;
+            }
+
+            if (savedAdminUsername) {
+                document.getElementById('admin-username').value = savedAdminUsername;
+                document.getElementById('admin-remember').checked = true;
+            }
+        }
+
+        // 切換標籤
+        function switchTab(tab) {
+            // 更新按鈕狀態
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 更新表單顯示
+            const forms = document.querySelectorAll('.form-content');
+            forms.forEach(f => f.classList.remove('active'));
+
+            if (tab === 'shop') {
+                document.getElementById('shop-form').classList.add('active');
+            } else if (tab === 'admin') {
+                document.getElementById('admin-form').classList.add('active');
+            }
+
+            // 清除錯誤信息
+            clearErrors();
+        }
+
+        // 店家登入
+        function handleShopLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('shop-username').value.trim();
+            const password = document.getElementById('shop-password').value.trim();
+            const remember = document.getElementById('shop-remember').checked;
+
+            // 驗證
+            if (!username || !password) {
+                showError('shop-error', '帳號和密碼不能為空');
+                return;
+            }
+
+            // 模擬登入驗證（實際應該調用後端 API）
+            if (username === 'shop1' && password === '1234') {
+                // 保存登入信息
+                localStorage.setItem('shopUser', JSON.stringify({
+                    username: username,
+                    role: 'shop',
+                    loginTime: new Date().toISOString()
+                }));
+
+                // 記住帳號
+                if (remember) {
+                    localStorage.setItem('savedShopUsername', username);
+                } else {
+                    localStorage.removeItem('savedShopUsername');
+                }
+
+                // 跳轉到店家後台
+                window.location.href = '/admin';
+            } else {
+                showError('shop-error', '帳號或密碼錯誤');
+            }
+        }
+
+        // 管理員登入
+        function handleAdminLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('admin-username').value.trim();
+            const password = document.getElementById('admin-password').value.trim();
+            const remember = document.getElementById('admin-remember').checked;
+
+            // 驗證
+            if (!username || !password) {
+                showError('admin-error', '帳號和密碼不能為空');
+                return;
+            }
+
+            // 模擬登入驗證（實際應該調用後端 API）
+            if (username === 'admin' && password === 'admin') {
+                // 保存登入信息
+                localStorage.setItem('adminUser', JSON.stringify({
+                    username: username,
+                    role: 'admin',
+                    loginTime: new Date().toISOString()
+                }));
+
+                // 記住帳號
+                if (remember) {
+                    localStorage.setItem('savedAdminUsername', username);
+                } else {
+                    localStorage.removeItem('savedAdminUsername');
+                }
+
+                // 跳轉到管理員後台
+                window.location.href = '/admin-panel';
+            } else {
+                showError('admin-error', '帳號或密碼錯誤');
+            }
+        }
+
+        // 顯示錯誤信息
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        // 清除所有錯誤信息
+        function clearErrors() {
+            const errors = document.querySelectorAll('.error-message');
+            errors.forEach(e => {
+                e.textContent = '';
+                e.classList.remove('show');
+            });
+        }
+
+        // 頁面加載時初始化
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

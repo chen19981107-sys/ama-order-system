@@ -48,6 +48,26 @@ app.get("/order", (req, res) => {
   }
 });
 
+// 提供 admin.html 作為 /admin 端點
+app.get("/admin", (req, res) => {
+  const adminPath = path.join(__dirname, "public", "admin.html");
+  if (fs.existsSync(adminPath)) {
+    res.sendFile(adminPath);
+  } else {
+    res.status(404).send("admin.html not found");
+  }
+});
+
+// 提供 admin-panel.html 作為 /admin-panel 端點
+app.get("/admin-panel", (req, res) => {
+  const adminPanelPath = path.join(__dirname, "public", "admin-panel.html");
+  if (fs.existsSync(adminPanelPath)) {
+    res.sendFile(adminPanelPath);
+  } else {
+    res.status(404).send("admin-panel.html not found");
+  }
+});
+
 // ===== 出車地點 API =====
 
 // 獲取指定日期的出車地點

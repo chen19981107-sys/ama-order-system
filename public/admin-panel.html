@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>輕鬆點餐系統 - 管理員後台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            color: #ff6b35;
+        }
+
+        .logout-btn {
+            background-color: #ff6b35;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background-color: #e55a24;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #ff6b35;
+            padding-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #ff6b35;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ff6b35;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        thead {
+            background-color: #f5f5f5;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            font-weight: bold;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #fafafa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btn {
+            background-color: #ff6b35;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .action-btn:hover {
+            background-color: #e55a24;
+        }
+
+        .action-btn.danger {
+            background-color: #dc3545;
+        }
+
+        .action-btn.danger:hover {
+            background-color: #c82333;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .pagination button.active {
+            background-color: #ff6b35;
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        .pagination button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-section input,
+        .filter-section select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filter-section button {
+            background-color: #ff6b35;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-section button:hover {
+            background-color: #e55a24;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <span style="font-size: 24px;">⚙️</span>
+                <h1>輕鬆點餐系統 - 管理員後台</h1>
+            </div>
+            <button class="logout-btn" onclick="logout()">登出</button>
+        </header>
+
+        <div class="content">
+            <!-- 統計卡片 -->
+            <div class="card">
+                <h2>統計概覽</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">今日訂單</div>
+                        <div class="stat-value" id="todayOrders">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">本月訂單</div>
+                        <div class="stat-value" id="monthOrders">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">待處理</div>
+                        <div class="stat-value" id="pendingOrders">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">已完成</div>
+                        <div class="stat-value" id="completedOrders">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 訂單列表 -->
+            <div class="card">
+                <h2>訂單管理</h2>
+                <div class="filter-section">
+                    <input type="date" id="filterDate" placeholder="篩選日期">
+                    <select id="filterStatus">
+                        <option value="">所有狀態</option>
+                        <option value="pending">待處理</option>
+                        <option value="completed">已完成</option>
+                        <option value="cancelled">已取消</option>
+                    </select>
+                    <button onclick="applyFilter()">篩選</button>
+                    <button onclick="clearFilter()">清除篩選</button>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>訂單編號</th>
+                            <th>客戶名稱</th>
+                            <th>訂單日期</th>
+                            <th>取餐時間</th>
+                            <th>金額</th>
+                            <th>狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTable">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px;">暫無訂單</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination" id="pagination"></div>
+            </div>
+
+            <!-- 店家管理 -->
+            <div class="card">
+                <h2>店家管理</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>店家名稱</th>
+                            <th>帳號</th>
+                            <th>狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ㄚ嬤灶咖</td>
+                            <td>shop1</td>
+                            <td><span class="status-badge status-completed">啟用</span></td>
+                            <td>
+                                <button class="action-btn">編輯</button>
+                                <button class="action-btn danger">停用</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let orders = [];
+        let currentPage = 1;
+        const ordersPerPage = 10;
+
+        function initAdminPanel() {
+            loadOrders();
+            updateStats();
+        }
+
+        function loadOrders() {
+            // 模擬訂單數據
+            orders = [
+                {
+                    id: '#1',
+                    customerName: '王先生',
+                    date: '2026-05-29',
+                    time: '14:00',
+                    amount: '$140',
+                    status: 'completed'
+                },
+                {
+                    id: '#2',
+                    customerName: '李女士',
+                    date: '2026-05-29',
+                    time: '15:30',
+                    amount: '$280',
+                    status: 'pending'
+                }
+            ];
+            renderOrders();
+        }
+
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayCount = orders.filter(o => o.date === today).length;
+            const pendingCount = orders.filter(o => o.status === 'pending').length;
+            const completedCount = orders.filter(o => o.status === 'completed').length;
+
+            document.getElementById('todayOrders').textContent = todayCount;
+            document.getElementById('monthOrders').textContent = orders.length;
+            document.getElementById('pendingOrders').textContent = pendingCount;
+            document.getElementById('completedOrders').textContent = completedCount;
+        }
+
+        function renderOrders() {
+            const table = document.getElementById('ordersTable');
+            table.innerHTML = '';
+
+            if (orders.length === 0) {
+                table.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">暫無訂單</td></tr>';
+                return;
+            }
+
+            const start = (currentPage - 1) * ordersPerPage;
+            const end = start + ordersPerPage;
+            const pageOrders = orders.slice(start, end);
+
+            pageOrders.forEach(order => {
+                const statusClass = `status-${order.status}`;
+                const statusText = {
+                    'pending': '待處理',
+                    'completed': '已完成',
+                    'cancelled': '已取消'
+                }[order.status] || '未知';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.id}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.date}</td>
+                    <td>${order.time}</td>
+                    <td>${order.amount}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button class="action-btn" onclick="editOrder('${order.id}')">編輯</button>
+                        <button class="action-btn danger" onclick="deleteOrder('${order.id}')">刪除</button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            const totalPages = Math.ceil(orders.length / ordersPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                if (i === currentPage) {
+                    button.classList.add('active');
+                }
+                button.onclick = () => {
+                    currentPage = i;
+                    renderOrders();
+                };
+                pagination.appendChild(button);
+            }
+        }
+
+        function editOrder(orderId) {
+            alert(`編輯訂單 ${orderId}`);
+        }
+
+        function deleteOrder(orderId) {
+            if (confirm(`確定要刪除訂單 ${orderId} 嗎？`)) {
+                orders = orders.filter(o => o.id !== orderId);
+                currentPage = 1;
+                renderOrders();
+                updateStats();
+            }
+        }
+
+        function applyFilter() {
+            alert('篩選功能開發中...');
+        }
+
+        function clearFilter() {
+            document.getElementById('filterDate').value = '';
+            document.getElementById('filterStatus').value = '';
+            renderOrders();
+        }
+
+        function logout() {
+            if (confirm('確定要登出嗎？')) {
+                localStorage.removeItem('adminUser');
+                window.location.href = '/';
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', initAdminPanel);
+    </script>
+</body>
+</html>

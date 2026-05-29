@@ -981,6 +981,7 @@ function validate() {
   const setErr = (id, errId, cond) => {
     const el = document.getElementById(id);
     const em = document.getElementById(errId);
+    if (!el || !em) return; // 如果元素不存在，跳過
     if (cond) { el.classList.add("err"); em.classList.add("show"); ok = false; }
     else { el.classList.remove("err"); em.classList.remove("show"); }
   };
@@ -989,7 +990,21 @@ function validate() {
   setErr("phone", "phoneErr", !/^\d{10}$/.test(document.getElementById("phone").value.trim()));
   const hour = document.getElementById("pickupHour").value;
   const minute = document.getElementById("pickupMinute").value;
-  setErr("pickupTime", "timeErr", !hour || !minute);
+  // 直接設置時間選擇器的錯誤狀態
+  const timeErr = !hour || !minute;
+  const hourEl = document.getElementById("pickupHour");
+  const minuteEl = document.getElementById("pickupMinute");
+  const timeErrEl = document.getElementById("timeErr");
+  if (timeErr) { 
+    hourEl.classList.add("err"); 
+    minuteEl.classList.add("err"); 
+    if (timeErrEl) timeErrEl.classList.add("show"); 
+    ok = false; 
+  } else { 
+    hourEl.classList.remove("err"); 
+    minuteEl.classList.remove("err"); 
+    if (timeErrEl) timeErrEl.classList.remove("show"); 
+  }
   const noMenu = getSelected().length === 0;
   if (noMenu) document.getElementById("menuErr").classList.add("show");
   else document.getElementById("menuErr").classList.remove("show");
